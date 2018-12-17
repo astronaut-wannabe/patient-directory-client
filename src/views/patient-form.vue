@@ -42,7 +42,14 @@
         <div class="row">
           <div class="col-md-4">
             <div class="form-group">
-              <input v-model="patient.medicalRecommendation.state" type="text" class="form-control" placeholder="State" />
+              <select v-model="patient.medicalRecommendation.state" >
+                <option v-if="patient.medicalRecommendation.state == undefined" disabled :value="undefined">Select a State</option>
+                <option v-else selected :value="patient.medicalRecommendation.state">{{ patient.medicalRecommendation.state }}</option>
+
+                <option v-for="state in possibleStates" :key="state.id" :value="state.uspsAbbreviation">
+                  {{ state.uspsAbbreviation }}
+                </option>
+              </select>
             </div>
           </div>
           <div class="col-md-4">
@@ -96,13 +103,14 @@
 <script lang="ts">
 import Vue from "vue"
 import EventBus from "@/event-bus"
-import { Patient, MedicalRecommendation, StateLicense } from "@/models"
+import { Patient, MedicalRecommendation, StateLicense, UsaState } from "@/models"
 
 export default Vue.extend({
     created() {
         EventBus.$on('patient_selected', (patientId: string) => {
             this.loadPatient(patientId)
         })
+        this.fetchUsaStates()
     },
     data: function () {
         let patient = new Patient({
@@ -110,7 +118,10 @@ export default Vue.extend({
             stateLicense: new StateLicense({ state: "WA" })
         })
         
-        return { patient }
+        return {
+          patient,
+          possibleStates: [] as UsaState[]
+        }
     },
     methods: {
         async loadPatient(patientId: string) {
@@ -119,6 +130,9 @@ export default Vue.extend({
                 .find(patientId)
             console.log(data)
             if (data) this.patient = data
+        },
+        async fetchUsaStates() {
+            this.possibleStates = (await UsaState.select({usa_states: ["usps_abbreviation"]}).all()).data
         },
         async submit() {
             const success = await this.patient.save({ with: ["medicalRecommendation","stateLicense"] })

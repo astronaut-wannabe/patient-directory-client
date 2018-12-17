@@ -51,3 +51,13 @@ export class StateLicense extends ApplicationRecord {
 
     @BelongsTo() patient: Patient
 }
+
+@Model()
+export class UsaState extends ApplicationRecord {
+  static jsonapiType = "usa_states"
+
+    @Attr() uspsAbbreviation: string
+    @Attr() fullName: string
+    @Attr() expiresAt: string
+    @Attr() timezone: string
+}
