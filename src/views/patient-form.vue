@@ -85,9 +85,10 @@
         </div>
         </div>
       </div>
-
       <button type="submit" class="float-right btn btn-primary">Submit</button>
-      </form>
+    </form>
+
+    <button v-on:click="destroy" type="button" class="float-leftt btn btn-danger">Delete</button>
     </div>
   </div>
 </template>
@@ -122,6 +123,12 @@ export default Vue.extend({
         async submit() {
             const success = await this.patient.save({ with: ["medicalRecommendation","stateLicense"] })
             if (success) EventBus.$emit("patient_save", this.patient)
+        },
+        async destroy() {
+            if(this.patient.id == undefined) return
+
+            const success = await this.patient.destroy()
+            if (success) EventBus.$emit("patient_save", this.patient)
         }
     }
 })
@@ -131,4 +138,5 @@ export default Vue.extend({
 select {
   width: 15rem;
 }
+button.btn-danger { width: 20%; }
 </style>
